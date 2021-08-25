@@ -228,7 +228,7 @@ module.exports = class ProviderGCP {
 
     winston.debug('[ProviderGCP] createInstances: count=%d', count);
 
-    return createInstances(self._config.instance, count)
+    return _createInstances(self._config.instance, count)
       .then((ids) => Promise.delay(1000, ids))
       // .then((ids) => tagInstances(self._zone, ids, self._config.tag))
       .catch((err) => {
@@ -259,14 +259,17 @@ module.exports = class ProviderGCP {
       //     data: body,
       //   });
       // }
-    function createInstances(instanceConfig, cnt) {
+    function _createInstances(instanceConfig, cnt) {
 
       return self.models.then((instances) => new Promise((resolve, reject) => {
           const vmPromises = [];
           const instanceCount = instances.length;
           // const templateName = self._config.templateName;
+          // _.times(cnt, (n) => {
+          //     vmPromises.push(_createVM(self._zone, `scraproxy-instance-${instanceCount + n}`, instanceConfig));
+          // });
           _.times(cnt, (n) => {
-              vmPromises.push(_createVM(self._zone, `scraproxy-instance-${instanceCount + n}`, instanceConfig));
+              vmPromises.push(_createVM(self._zone, `scraproxy-instance-${Math.random().toString(36).substr(2, 11)}`, instanceConfig));
           });
 
           Promise.all(vmPromises).then((vms) => {
