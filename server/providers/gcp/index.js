@@ -72,6 +72,10 @@ module.exports = class ProviderGCP {
     return 'PROVISIONING';
   }
 
+  static get ST_STAGING() {
+    return 'STAGING';
+  }
+
   static get ST_RUNNING() {
     return 'RUNNING';
   }
@@ -110,12 +114,14 @@ module.exports = class ProviderGCP {
     function describeInstances() {
       return new Promise((resolve, reject) => {      
 
-        self._zone.getVMs({autoPaginate: false}, (err, vms, apiResponse) => {
-          if (err) {
-            return reject(err);
-          }
-          winston.debug('[ProviderGCP] describeInstances get VMs:', _.map(vms, "name"));
-          resolve(vms);
+        self._zone.getVMs(
+          {autoPaginate: false, filter: 'name eq ^scraproxy-instance-.*'},
+          (err, vms, apiResponse) => {
+            if (err) {
+              return reject(err);
+            }
+            winston.debug('[ProviderGCP] describeInstances get VMs:', _.map(vms, "name"));
+            resolve(vms);
         });
       });
     }
@@ -193,6 +199,9 @@ module.exports = class ProviderGCP {
       function convertStatus(status) {
         switch (status.toUpperCase()) {
           case ProviderGCP.ST_PENDING: {
+            return InstanceModel.STARTING;
+          }
+          case ProviderGCP.ST_STAGING: {
             return InstanceModel.STARTING;
           }
           case ProviderGCP.ST_RUNNING: {
