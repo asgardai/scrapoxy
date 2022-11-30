@@ -68,7 +68,7 @@ class Mitm {
         const emitter = new events.EventEmitter();
 
         const parser = parsers.alloc();
-        parser.reinitialize(HTTPParser.REQUEST);
+        parser.reinitialize(HTTPParser.REQUEST, true);
         parser.socket = socket;
         socket.parser = parser;
 
